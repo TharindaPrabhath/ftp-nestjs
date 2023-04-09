@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as ftp from 'basic-ftp';
+import { Readable } from 'stream';
 
 @Injectable()
 export class FtpService {
@@ -21,7 +22,33 @@ export class FtpService {
     });
   }
 
-  async uploadFile() {
-    //
+  async uploadFile(file: Readable, remotePath: string) {
+    if (this.client.closed) await this.connect();
+    const result = await this.client.uploadFrom(file, remotePath);
+    return result;
+  }
+
+  async list(path: string) {
+    if (this.client.closed) await this.connect();
+    const result = await this.client.list(path);
+    return result;
+  }
+
+  async rename(srcPath: string, newPath: string) {
+    if (this.client.closed) await this.connect();
+    const result = await this.client.rename(srcPath, newPath);
+    return result;
+  }
+
+  async removeFile(path: string) {
+    if (this.client.closed) await this.connect();
+    const result = await this.client.remove(path);
+    return result;
+  }
+
+  async removeDir(path: string) {
+    if (this.client.closed) await this.connect();
+    const result = await this.client.removeDir(path);
+    return result;
   }
 }
