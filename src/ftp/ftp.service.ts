@@ -13,7 +13,7 @@ export class FtpService {
   }
 
   private async connect() {
-    this.client.access({
+    await this.client.access({
       host: this.configService.get('FTP_HOST'),
       user: this.configService.get('FTP_USER'),
       password: this.configService.get('FTP_PASSWORD'),
@@ -22,9 +22,16 @@ export class FtpService {
     });
   }
 
-  async uploadFile(file: Readable, remotePath: string) {
+  // async downloadFile(remotePath: string) {
+  //   if (this.client.closed) await this.connect();
+  //   await this.client.downloadTo('/files', remotePath);
+  //   const file = createReadStream(join(process.cwd(), 'package.json'));
+  //   return new StreamableFile(file);
+  // }
+
+  async uploadFile(file: Express.Multer.File, remotePath: string) {
     if (this.client.closed) await this.connect();
-    const result = await this.client.uploadFrom(file, remotePath);
+    const result = await this.client.uploadFrom(Readable.from(file.buffer), remotePath);
     return result;
   }
 
